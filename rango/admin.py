@@ -20,11 +20,12 @@ admin.site.register(Page, PageAdmin)
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    fields = ['name', 'views', 'likes']
+    fields = ['name', 'views', 'likes', 'slug']
     inlines = [PageInline]
-    list_display = ('name', 'views', 'likes')
+    list_display = ('name', 'views', 'likes', 'slug')
     list_filter = ['views']
     search_fields = ['name']
+    prepopulated_fields = {'slug': ('name',)}
 
 
 admin.site.register(Category, CategoryAdmin)
