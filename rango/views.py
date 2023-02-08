@@ -18,16 +18,13 @@ def index(request):
     context_dict['categories'] = category_list
     context_dict['pages'] = pages_list
 
-    request.session.set_test_cookie()
+    response = render(request, 'rango/index.html', context=context_dict)
+    visitor_cookie_handler(request, response)
 
-    return render(request, 'rango/index.html', context=context_dict)
+    return response
 
 
 def about(request):
-
-    if request.session.test_cookie_worked():
-        print("Test cookie worked!")
-        request.session.delete_test_cookie()
 
     context_dict = {'boldmessage': 'This tutorial has been put together by Rory Hunter'}
     return render(request, 'rango/about.html', context=context_dict)
@@ -155,18 +152,39 @@ def user_logout(request):
     logout(request)
     return redirect(reverse('rango:index'))
 
-def visitor_cookie_handler(request, response):
-    visits = int(request.COOKEIS.get('visits', '1'))
-    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
-    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
-                                        '%Y-%m-%d %H:%M:%S')
+#
+# def visitor_cookie_handler(request, response):
+#     visits = int(request.COOKIES.get('visits', '1'))
+#     last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+#     print(datetime.strptime(last_visit_cookie[:-7],
+#                             '%Y-%m-%d %H:%M:%S'))
+#     last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+#                                         '%Y-%m-%d %H:%M:%S')
+#
+#     if (datetime.now() - last_visit_time).days > 0:
+#         visits = visits + 1
+#         response.set_cookie('last_visit', str(datetime.now()))
+#     else:
+#         response.set_cookie('last_visit', last_visit_time)
+#
+#     response.set_cookie('visits', visits)
 
-    if (datetime.now() < last_visit_time).days > 0:
+
+def visitor_cookie_handler(request, response):
+    # Get the number of visits to the site.
+    # We use the COOKIES.get() function to obtain the visits cookie.
+    # If the cookie exists, the value returned is casted to an integer.
+    # If the cookie doesn't exist, then the default value of 1 is used.
+    visits = int(request.COOKIES.get('visits', '1'))
+    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+    # If it's been more than a day since the last visit...
+    if (datetime.now() - last_visit_time).days > 0:
         visits = visits + 1
+        # Update the last visit cookie now that we have updated the count
         response.set_cookie('last_visit', str(datetime.now()))
     else:
-        response.set_cookie('last_visit', last_visit_time)
-
+        # Set the last visit cookie
+        response.set_cookie('last_visit', last_visit_cookie)
+# Update/set the visits cookie
     response.set_cookie('visits', visits)
-
-
