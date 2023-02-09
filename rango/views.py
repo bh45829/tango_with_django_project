@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
+
 def index(request):
 
     category_list = Category.objects.order_by('-likes')[:5]
@@ -19,7 +20,6 @@ def index(request):
     context_dict['pages'] = pages_list
 
     visitor_cookie_handler(request)
-
     response = render(request, 'rango/index.html', context=context_dict)
     return response
 
@@ -173,6 +173,7 @@ def user_logout(request):
 #
 #     response.set_cookie('visits', visits)
 
+
 def get_server_side_cookie(request, cookie, default_val=None):
     val = request.session.get(cookie)
     if not val:
@@ -182,8 +183,8 @@ def get_server_side_cookie(request, cookie, default_val=None):
 
 def visitor_cookie_handler(request):
 
-    visits = int(request.COOKIES.get('visits', '1'))
-    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+    last_visit_cookie = get_server_side_cookie(request, 'last_visit', str(datetime.now()))
     last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
 
     # If it's been more than a day since the last visit...
@@ -195,4 +196,4 @@ def visitor_cookie_handler(request):
         # Set the last visit cookie
         request.session['last_visit'] = last_visit_cookie
     # Update/set the visits cookie
-    request.session['visits'] =  visits
+    request.session['visits'] = visits
